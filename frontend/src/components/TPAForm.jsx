@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,19 @@ import {
   Button,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
-const ProcessTPAForm = () => {
-  const [formData, setFormData] = useState({
+import {addTPARecord} from '../../db/tables/ProcessTPA'; // make sure you have this function
+import {getAllConsultantsCodes} from '../../db/tables/Consultants';
+import {getTPARecordByID} from '../../db/tables/ProcessTPA';
+import {updateTPARecord} from '../../db/tables/ProcessTPA';
+
+const ProcessTPAForm = ({isEditing}) => {
+  const [consultants, setConsultants] = useState([]);
+  const defaultFormData = {
+    id: '',
     name_of_party: '',
     name_of_corporation: '',
     details_of_work: '',
@@ -29,17 +37,157 @@ const ProcessTPAForm = () => {
     date: '',
     remarks: '',
     entered_by: '',
-  });
+  };
+  const [formData, setFormData] = useState(defaultFormData);
+  const [currentID, setCurrentID] = useState('');
+  const [sucessFetchData, setSucessFetchData] = useState(false);
+
+  useEffect(() => {
+    const fetchConsultants = async () => {
+      try {
+        const consultantCodes = await getAllConsultantsCodes();
+        setConsultants(consultantCodes);
+      } catch (error) {
+        console.error('Error fetching consultants:', error);
+      }
+    };
+    fetchConsultants();
+  }, []);
 
   const handleChange = (name, value) => {
     setFormData({...formData, [name]: value});
+  };
+  const handleChangeID = value => {
+    setCurrentID(value);
+  };
+
+  const handleSubmit = async () => {
+    const requiredFields = [
+      'name_of_party',
+      'name_of_corporation',
+      'details_of_work',
+      'amount',
+      'total_incl_gst',
+      'cumulative_amount',
+      'cumulative_amount_incl_gst',
+      'visit_status',
+      'document_receipt',
+      'report_status',
+      'payment_status',
+      'payment_date',
+      'jv_no',
+      'receipt_no',
+      'consultant_code',
+      'date',
+      'remarks',
+      'entered_by',
+    ];
+
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        Alert.alert('Please fill all fields!');
+        return;
+      }
+    }
+
+    if (
+      isNaN(formData.amount) ||
+      isNaN(formData.total_incl_gst) ||
+      isNaN(formData.cumulative_amount) ||
+      isNaN(formData.cumulative_amount_incl_gst)
+    ) {
+      Alert.alert('Please enter valid numbers!');
+      return;
+    }
+
+    try {
+      await addTPARecord(formData);
+      Alert.alert('Record added successfully!');
+      setFormData(defaultFormData);
+    } catch (error) {
+      console.error('Error adding record:', error);
+      Alert.alert('Failed to add record. Please try again.');
+    }
+  };
+
+  const handleFetch = async id => {
+    try {
+      const result = await getTPARecordByID(id);
+      if (result) {
+        setFormData({
+          id: result.id,
+          name_of_party: result.name_of_party,
+          name_of_corporation: result.name_of_corporation,
+          details_of_work: result.details_of_work,
+          amount: result.amount,
+          total_incl_gst: result.total_incl_gst,
+          cumulative_amount: result.cumulative_amount,
+          cumulative_amount_incl_gst: result.cumulative_amount_incl_gst,
+          visit_status: result.visit_status,
+          document_receipt: result.document_receipt,
+          report_status: result.report_status,
+          payment_status: result.payment_status,
+          payment_date: result.payment_date,
+          jv_no: result.jv_no,
+          receipt_no: result.receipt_no,
+          date: result.date,
+          consultant_code: result.consultant_code,
+          remarks: result.remarks,
+          entered_by: result.entered_by,
+        });
+        setSucessFetchData(true);
+        Alert.alert('Record fetched successfully!');
+      } else {
+        Alert.alert('No record found with this ID!');
+      }
+      setCurrentID('');
+    } catch (error) {
+      console.error('Error fetching record:', error);
+      Alert.alert('Failed to fetch record. Please try again.');
+    }
+  };
+
+  const handleSubmitEditing = async () => {
+    try {
+      if (
+        isNaN(formData.amount) ||
+        isNaN(formData.total_incl_gst) ||
+        isNaN(formData.cumulative_amount) ||
+        isNaN(formData.cumulative_amount_incl_gst)
+      ) {
+        Alert.alert('Please enter valid numbers!');
+        return;
+      }
+
+      await updateTPARecord(formData);
+      Alert.alert('Record updated successfully!');
+      setFormData(defaultFormData);
+      setCurrentID('');
+    } catch (error) {
+      console.error('Error updating record:', error);
+      Alert.alert('Failed to update record. Please try again.');
+    }
+  };
+
+  const handleClearFormData = () => {
+    setFormData(defaultFormData);
+    setCurrentID('');
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Process TPA Form</Text>
-
-      {/* Single-column text input */}
+      {isEditing && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter ID"
+            value={currentID}
+            onChangeText={value => handleChangeID(value)}
+          />
+          <Button title="Edit" onPress={() => handleFetch(currentID)} />
+        </>
+      )}
       <TextInput
         style={styles.input}
         placeholder="Name of Party"
@@ -61,7 +209,6 @@ const ProcessTPAForm = () => {
         onChangeText={value => handleChange('details_of_work', value)}
       />
 
-      {/* Three-column layout for amount fields */}
       <View style={styles.row}>
         <TextInput
           style={[styles.input, styles.column]}
@@ -86,8 +233,16 @@ const ProcessTPAForm = () => {
         />
       </View>
 
-      {/* Three-column layout for date fields (No Date Picker) */}
       <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.column]}
+          placeholder="Cumulative Amount Incl GST"
+          keyboardType="numeric"
+          value={formData.cumulative_amount_incl_gst}
+          onChangeText={value =>
+            handleChange('cumulative_amount_incl_gst', value)
+          }
+        />
         <TextInput
           style={[styles.input, styles.column]}
           placeholder="Payment Date (YYYY-MM-DD)"
@@ -100,43 +255,35 @@ const ProcessTPAForm = () => {
           value={formData.date}
           onChangeText={value => handleChange('date', value)}
         />
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Receipt No."
-          value={formData.receipt_no}
-          onChangeText={value => handleChange('receipt_no', value)}
-        />
       </View>
 
-      {/* Three-column layout for pickers */}
       <View style={styles.row}>
         <Picker
           selectedValue={formData.visit_status}
           style={styles.picker}
           onValueChange={value => handleChange('visit_status', value)}>
           <Picker.Item label="Select Visit Status" value="" />
-          <Picker.Item label="Visited" value="Visited" />
-          <Picker.Item label="Not Visited" value="Not Visited" />
+          <Picker.Item label="Visited" value={1} />
+          <Picker.Item label="Not Visited" value={0} />
         </Picker>
         <Picker
           selectedValue={formData.report_status}
           style={styles.picker}
           onValueChange={value => handleChange('report_status', value)}>
           <Picker.Item label="Select Report Status" value="" />
-          <Picker.Item label="Completed" value="Completed" />
-          <Picker.Item label="Pending" value="Pending" />
+          <Picker.Item label="Completed" value={1} />
+          <Picker.Item label="Pending" value={0} />
         </Picker>
         <Picker
           selectedValue={formData.payment_status}
           style={styles.picker}
           onValueChange={value => handleChange('payment_status', value)}>
           <Picker.Item label="Select Payment Status" value="" />
-          <Picker.Item label="Paid" value="Paid" />
-          <Picker.Item label="Unpaid" value="Unpaid" />
+          <Picker.Item label="Paid" value={1} />
+          <Picker.Item label="Unpaid" value={0} />
         </Picker>
       </View>
 
-      {/* Three-column layout for document receipt, consultant code, and entered by */}
       <View style={styles.row}>
         <TextInput
           style={[styles.input, styles.column]}
@@ -144,18 +291,24 @@ const ProcessTPAForm = () => {
           value={formData.document_receipt}
           onChangeText={value => handleChange('document_receipt', value)}
         />
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Consultant Code"
-          value={formData.consultant_code}
-          onChangeText={value => handleChange('consultant_code', value)}
-        />
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Entered By"
-          value={formData.entered_by}
-          onChangeText={value => handleChange('entered_by', value)}
-        />
+        <Picker
+          selectedValue={formData.consultant_code}
+          style={styles.picker}
+          onValueChange={value => handleChange('consultant_code', value)}>
+          <Picker.Item label="Select Consultant Code" value="" />
+          {consultants.map(code => (
+            <Picker.Item key={code} label={code} value={code} />
+          ))}
+        </Picker>
+        <Picker
+          selectedValue={formData.entered_by}
+          style={styles.picker}
+          onValueChange={value => handleChange('entered_by', value)}>
+          <Picker.Item label="Select Entered By" value="" />
+          {consultants.map(code => (
+            <Picker.Item key={code} label={code} value={code} />
+          ))}
+        </Picker>
       </View>
 
       <TextInput
@@ -167,18 +320,17 @@ const ProcessTPAForm = () => {
         onChangeText={value => handleChange('remarks', value)}
       />
 
-      {/* Submit Button */}
       <Button
         title="Submit"
-        onPress={() => console.log('Form Submitted', formData)}
+        onPress={isEditing ? handleSubmitEditing : handleSubmit}
       />
+      <Button title="Clear" onPress={handleClearFormData} />
     </ScrollView>
   );
 };
 
 export default ProcessTPAForm;
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -213,7 +365,6 @@ const styles = StyleSheet.create({
   picker: {
     flex: 1,
     height: 50,
-    width: '100%',
     marginHorizontal: 5,
   },
 });

@@ -6,9 +6,9 @@
     <CppWinRTOptimized>true</CppWinRTOptimized>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <MinimalCoreWin>true</MinimalCoreWin>
-    <ProjectGuid>{60a8d5c4-4a90-437a-aeaf-e856b5dddf9a}</ProjectGuid>
-    <ProjectName>CiviLedger</ProjectName>
-    <RootNamespace>CiviLedger</RootNamespace>
+    <ProjectGuid>{d0fa16b2-d004-48a1-84f8-7037bcae3acd}</ProjectGuid>
+    <ProjectName>civiledger</ProjectName>
+    <RootNamespace>civiledger</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>

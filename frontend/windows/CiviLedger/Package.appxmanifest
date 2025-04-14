@@ -7,14 +7,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="16eb3fea-6e9b-42fa-8b1c-901b9a032813"
+    Name="bc5c8b8f-6385-4bca-b1ce-afaa9cb42485"
     Publisher="CN=Daivik"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="16eb3fea-6e9b-42fa-8b1c-901b9a032813" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="bc5c8b8f-6385-4bca-b1ce-afaa9cb42485" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>CiviLedger</DisplayName>
+    <DisplayName>civiledger</DisplayName>
     <PublisherDisplayName>Daivik</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -31,12 +31,12 @@
     <Application
       Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="CiviLedger.App">
+      EntryPoint="civiledger.App">
       <uap:VisualElements
-        DisplayName="CiviLedger"
+        DisplayName="civiledger"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="CiviLedger"
+        Description="civiledger"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />

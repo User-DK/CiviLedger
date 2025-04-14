@@ -6,7 +6,7 @@
 
 namespace activation = winrt::Windows::ApplicationModel::Activation;
 
-namespace winrt::CiviLedger::implementation
+namespace winrt::civiledger::implementation
 {
     struct App : AppT<App>
     {
@@ -18,4 +18,4 @@ namespace winrt::CiviLedger::implementation
       private:
         using super = AppT<App>;
     };
-} // namespace winrt::CiviLedger::implementation
+} // namespace winrt::civiledger::implementation

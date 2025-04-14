@@ -2,7 +2,7 @@
 #include "MainPage.g.h"
 #include <winrt/Microsoft.ReactNative.h>
 
-namespace winrt::CiviLedger::implementation
+namespace winrt::civiledger::implementation
 {
     struct MainPage : MainPageT<MainPage>
     {
@@ -10,7 +10,7 @@ namespace winrt::CiviLedger::implementation
     };
 }
 
-namespace winrt::CiviLedger::factory_implementation
+namespace winrt::civiledger::factory_implementation
 {
     struct MainPage : MainPageT<MainPage, implementation::MainPage>
     {

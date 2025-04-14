@@ -9,7 +9,7 @@
 using namespace winrt;
 using namespace xaml;
 
-namespace winrt::CiviLedger::implementation
+namespace winrt::civiledger::implementation
 {
     MainPage::MainPage()
     {
