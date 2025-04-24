@@ -8,7 +8,7 @@
 
   <Identity
     Name="bc5c8b8f-6385-4bca-b1ce-afaa9cb42485"
-    Publisher="CN=Daivik"
+    Publisher="CN=CiviLedger"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="bc5c8b8f-6385-4bca-b1ce-afaa9cb42485" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>

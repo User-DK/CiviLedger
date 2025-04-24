@@ -220,7 +220,7 @@ export const createTables = async (db) => {
       );
     }
 
-    Alert.alert("created tables successfully", "You can now use the app.");
+    // Alert.alert("created tables successfully", "You can now use the app.");
   } catch (error) {
     console.error("Error creating tables:", error);
     Alert.alert("Error creating tables", error.message);

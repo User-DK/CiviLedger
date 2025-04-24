@@ -29,6 +29,8 @@ import ViewTestersRecords from './components/ViewTesters';
 import ViewConsultantsRecords from './components/ViewConsultants';
 import ViewTestRates from './components/ViewTestRates';
 import GenerateExcel from './components/GenerateExcel';
+import Footer from './components/Footer';
+//import ViewEstimation from './components/ViewEstimation';
 
 export default function App() {
   const [selectedScreen, setSelectedScreen] = useState('Home');
@@ -74,7 +76,7 @@ export default function App() {
         });
   
         changes[table] = filteredData;
-        Alert.alert('Changes', JSON.stringify(changes[table]));
+        // Alert.alert('Changes', JSON.stringify(changes[table]));
       }
       console.log('Filtered Changes:', changes);
 
@@ -127,6 +129,8 @@ export default function App() {
         return <ViewTestRates />;
       case 'GenerateExcel':
         return <GenerateExcel />; 
+      // case 'ViewEstimation':
+      //   return <ViewEstimation />;
       default:
         return <Home />;
     }
@@ -226,6 +230,13 @@ export default function App() {
                       iconText="📊"
                       buttonStyle={{ backgroundColor: 'black' }}
                     />
+                    {/* <CustomButton
+                      title="View Estimation Records"
+                      onPress={() => setSelectedScreen('ViewEstimation')}
+                      theme={appTheme}
+                      iconText="📊"
+                      buttonStyle={{ backgroundColor: 'black' }}
+                    /> */}
                     <CustomButton
                       title="Sync Now"
                       onPress={handleSyncNow} // Call the sync function directly
@@ -255,6 +266,7 @@ export default function App() {
                 ]}>
                 {renderScreen()}
               </View>
+              <Footer />
             </View>
           </NavigationContainer>
         </ThemeContext.Provider>

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,11 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
-import { getPaginatedTesterRecords } from '../../db/tables/testers';
+import { getPaginatedEstimationRecords } from '../../db/tables/Estimation';
+import CustomModal from './CustomModal';
 
-const ViewTestersRecords = () => {
+const ViewEstimation = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -23,7 +23,7 @@ const ViewTestersRecords = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const result = await getPaginatedTesterRecords(page, pageSize);
+      const result = await getPaginatedEstimationRecords(page, pageSize);
       if (result?.records) {
         setData(result.records);
         const total = Math.ceil(result.totalPages / pageSize);
@@ -31,7 +31,6 @@ const ViewTestersRecords = () => {
       } else {
         setData([]);
       }
-      // Alert.alert("results", JSON.stringify(result));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -43,7 +42,7 @@ const ViewTestersRecords = () => {
     fetchData();
   }, [page]);
 
-  const openModal = item => {
+  const openModal = (item) => {
     setSelectedItem(item);
     setModalVisible(true);
   };
@@ -55,26 +54,25 @@ const ViewTestersRecords = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Testers Records</Text>
+      <Text style={styles.heading}>Estimation Records</Text>
 
       {loading ? (
         <ActivityIndicator size="large" />
       ) : (
         <FlatList
           data={data}
-          keyExtractor={item => item.tester_code?.toString()}
-          renderItem={({item}) => (
+          keyExtractor={(item) => item.id?.toString()}
+          renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => openModal(item)}>
-              <Text style={styles.cardTitle}>
-                Tester Code: {item.tester_code}
+              onPress={() => openModal(item)}
+            >
+              <Text style={styles.cardTitle}>ID: {item.id}</Text>
+              <Text style={styles.cardSubtitle}>
+                Name of Party: {item.name_of_party}
               </Text>
               <Text style={styles.cardSubtitle}>
-                Name of the Tester: {item.tester_name}
-              </Text>
-              <Text style={styles.cardSubtitle}>
-                Tester Phone: {item.tester_phone}
+                Total Amount: Rs. {item.total_amount}
               </Text>
             </TouchableOpacity>
           )}
@@ -84,8 +82,9 @@ const ViewTestersRecords = () => {
       <View style={styles.pagination}>
         <TouchableOpacity
           disabled={page === 1}
-          onPress={() => setPage(prev => prev - 1)}
-          style={[styles.pageButton, page === 1 && styles.disabledButton]}>
+          onPress={() => setPage((prev) => prev - 1)}
+          style={[styles.pageButton, page === 1 && styles.disabledButton]}
+        >
           <Text style={styles.pageText}>Previous</Text>
         </TouchableOpacity>
         <Text style={styles.pageText}>
@@ -93,20 +92,27 @@ const ViewTestersRecords = () => {
         </Text>
         <TouchableOpacity
           disabled={page === totalPages}
-          onPress={() => setPage(prev => prev + 1)}
+          onPress={() => setPage((prev) => prev + 1)}
           style={[
             styles.pageButton,
             page === totalPages && styles.disabledButton,
-          ]}>
+          ]}
+        >
           <Text style={styles.pageText}>Next</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Custom Modal to show record details */}
+      <CustomModal
+        visible={modalVisible}
+        data={selectedItem}
+        onClose={closeModal}
+      />
     </View>
   );
 };
 
-export default ViewTestersRecords;
+export default ViewEstimation;
 
 const styles = StyleSheet.create({
   container: {
