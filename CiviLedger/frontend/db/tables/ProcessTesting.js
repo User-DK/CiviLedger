@@ -122,3 +122,17 @@ export const deleteTestingRecord = async (id) => {
   const db = await getDBConnection();
   await db.executeSql(`DELETE FROM Process_Testing WHERE id = ?`, [id]);
 };
+
+//yash added for Cumulative field
+export const getLastTestingRecord = async () => {
+  const db = await getDBConnection();
+  const result = await db.executeSql(
+    `SELECT * FROM Process_Testing ORDER BY id DESC LIMIT 1`
+  );
+
+  if (result[0].rows.length > 0) {
+    return result[0].rows.item(0);
+  }
+
+  return null; // No previous record
+};

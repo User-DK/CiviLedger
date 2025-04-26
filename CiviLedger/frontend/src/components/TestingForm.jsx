@@ -540,6 +540,95 @@ const ProcessTestingForm = ({isEditing}) => {
 
   const isNumeric = (...values) => values.every(val => !isNaN(val));
 
+  // const handleSubmit = async () => {
+  //   const {
+  //     id,
+  //     name_of_party,
+  //     details_of_work,
+  //     amount,
+  //     total_incl_gst,
+  //     cumulative_amount,
+  //     cumulative_amount_incl_gst,
+  //     material_receipt,
+  //     testing_status,
+  //     report_status,
+  //     payment_status,
+  //     payment_date,
+  //     jv_no,
+  //     receipt_no,
+  //     date,
+  //     testers,
+  //     remarks,
+  //     entered_by,
+  //   } = formData;
+
+  //   if (
+  //     !name_of_party ||
+  //     !details_of_work ||
+  //     !amount ||
+  //     !total_incl_gst ||
+  //     !cumulative_amount ||
+  //     !cumulative_amount_incl_gst ||
+  //     !material_receipt ||
+  //     testing_status === '' ||
+  //     report_status === '' ||
+  //     payment_status === '' ||
+  //     !payment_date ||
+  //     !jv_no ||
+  //     !receipt_no ||
+  //     !date ||
+  //     !testers ||
+  //     !remarks ||
+  //     !entered_by
+  //   ) {
+  //     Alert.alert('Please fill all fields!');
+  //     return;
+  //   }
+
+  //   if (
+  //     !isNumeric(
+  //       amount,
+  //       total_incl_gst,
+  //       cumulative_amount,
+  //       cumulative_amount_incl_gst,
+  //     )
+  //   ) {
+  //     Alert.alert('Amount fields must be numeric!');
+  //     return;
+  //   }
+
+  //   try {
+  //     await addTestingRecord({
+  //       ...formData,
+  //       testing_status: parseInt(testing_status),
+  //       report_status: parseInt(report_status),
+  //       payment_status: parseInt(payment_status),
+  //     });
+  //     Alert.alert('Record added successfully!');
+  //     setFormData({
+  //       name_of_party: '',
+  //       details_of_work: '',
+  //       amount: '',
+  //       total_incl_gst: '',
+  //       cumulative_amount: '',
+  //       cumulative_amount_incl_gst: '',
+  //       material_receipt: '',
+  //       testing_status: '',
+  //       report_status: '',
+  //       payment_status: '',
+  //       payment_date: '',
+  //       jv_no: '',
+  //       receipt_no: '',
+  //       date: '',
+  //       testers: '',
+  //       remarks: '',
+  //       entered_by: '',
+  //     });
+  //   } catch (error) {
+  //     console.error('Error adding record:', error);
+  //     Alert.alert('Failed to add record. Please try again.');
+  //   }
+  // };
   const handleSubmit = async () => {
     const {
       id,
@@ -561,14 +650,12 @@ const ProcessTestingForm = ({isEditing}) => {
       remarks,
       entered_by,
     } = formData;
-
+  
     if (
       !name_of_party ||
       !details_of_work ||
       !amount ||
       !total_incl_gst ||
-      !cumulative_amount ||
-      !cumulative_amount_incl_gst ||
       !material_receipt ||
       testing_status === '' ||
       report_status === '' ||
@@ -584,26 +671,33 @@ const ProcessTestingForm = ({isEditing}) => {
       Alert.alert('Please fill all fields!');
       return;
     }
-
-    if (
-      !isNumeric(
-        amount,
-        total_incl_gst,
-        cumulative_amount,
-        cumulative_amount_incl_gst,
-      )
-    ) {
+  
+    if (!isNumeric(amount, total_incl_gst)) {
       Alert.alert('Amount fields must be numeric!');
       return;
     }
-
+  
     try {
+      // Fetch the last record to calculate cumulative amounts
+      const lastRecord = await getLastTestingRecord(); // Implement this function in your database logic
+  
+      let calculatedCumulativeAmount = parseFloat(amount);
+      let calculatedCumulativeAmountInclGST = parseFloat(total_incl_gst);
+  
+      if (lastRecord) {
+        calculatedCumulativeAmount += parseFloat(lastRecord.cumulative_amount || 0);
+        calculatedCumulativeAmountInclGST += parseFloat(lastRecord.cumulative_amount_incl_gst || 0);
+      }
+  
       await addTestingRecord({
         ...formData,
+        cumulative_amount: calculatedCumulativeAmount.toString(),
+        cumulative_amount_incl_gst: calculatedCumulativeAmountInclGST.toString(),
         testing_status: parseInt(testing_status),
         report_status: parseInt(report_status),
         payment_status: parseInt(payment_status),
       });
+  
       Alert.alert('Record added successfully!');
       setFormData({
         name_of_party: '',
@@ -629,7 +723,7 @@ const ProcessTestingForm = ({isEditing}) => {
       Alert.alert('Failed to add record. Please try again.');
     }
   };
-
+  
   const handleFetch = async id => {
     try {
       const result = await getTestingRecordByID(id);

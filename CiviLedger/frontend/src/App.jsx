@@ -1,6 +1,9 @@
+
+//yashraj first code
 import * as React from 'react';
 import {View, Text, useColorScheme, StyleSheet, Alert} from 'react-native';
 import {useState, useEffect, useCallback} from 'react';
+import {ScrollView} from 'react-native';
 import {
   NavigationContainer,
   DefaultTheme,
@@ -30,7 +33,7 @@ import ViewConsultantsRecords from './components/ViewConsultants';
 import ViewTestRates from './components/ViewTestRates';
 import GenerateExcel from './components/GenerateExcel';
 import Footer from './components/Footer';
-//import ViewEstimation from './components/ViewEstimation';
+import ViewEstimation from './components/ViewEstimation';
 
 export default function App() {
   const [selectedScreen, setSelectedScreen] = useState('Home');
@@ -129,8 +132,8 @@ export default function App() {
         return <ViewTestRates />;
       case 'GenerateExcel':
         return <GenerateExcel />; 
-      // case 'ViewEstimation':
-      //   return <ViewEstimation />;
+      case 'ViewEstimation':
+        return <ViewEstimation />;
       default:
         return <Home />;
     }
@@ -153,99 +156,100 @@ export default function App() {
                     styles.sidebar,
                     {backgroundColor: appTheme.colors.card},
                   ]}>
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Home"
-                      onPress={() => setSelectedScreen('Home')}
-                      theme={appTheme}
-                      iconText="🏠"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="Fill Details"
-                      onPress={() => setSelectedScreen('AllForm')}
-                      theme={appTheme}
-                      iconText="✏️"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="Edit Details"
-                      onPress={() => setSelectedScreen('AllEditForm')}
-                      theme={appTheme}
-                      iconText="✏️"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="Estimate Cost"
-                      onPress={() => setSelectedScreen('EstimationForm')}
-                      theme={appTheme}
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="View TPA Records"
-                      onPress={() => setSelectedScreen('ViewTPARecords')}
-                      theme={appTheme}
-                      iconText="📄"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="View Testing Records"
-                      onPress={() => setSelectedScreen('ViewTestingRecords')}
-                      theme={appTheme}
-                      iconText="🧪"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="View Consulting Records"
-                      onPress={() => setSelectedScreen('ViewConsultingRecords')}
-                      theme={appTheme}
-                      iconText="💼"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="View Consultants"
-                      onPress={() => setSelectedScreen('ViewConsultants')}
-                      theme={appTheme}
-                      iconText="👨‍💼"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="View Testers"
-                      onPress={() => setSelectedScreen('ViewTesters')}
-                      theme={appTheme}
-                      iconText="👩‍🔬"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="View Test Rates"
-                      onPress={() => setSelectedScreen('ViewTestRates')}
-                      theme={appTheme}
-                      iconText="💵"
-                      buttonStyle={{ backgroundColor: 'black' }} // Black background for sidebar buttons
-                    />
-                    <CustomButton
-                      title="Export Excel"
-                      onPress={() => setSelectedScreen('GenerateExcel')}
-                      theme={appTheme}
-                      iconText="📊"
-                      buttonStyle={{ backgroundColor: 'black' }}
-                    />
-                    {/* <CustomButton
-                      title="View Estimation Records"
-                      onPress={() => setSelectedScreen('ViewEstimation')}
-                      theme={appTheme}
-                      iconText="📊"
-                      buttonStyle={{ backgroundColor: 'black' }}
-                    /> */}
-                    <CustomButton
-                      title="Sync Now"
-                      onPress={handleSyncNow} // Call the sync function directly
-                      theme={appTheme}
-                      iconText="🔄"
-                      buttonStyle={{ backgroundColor: 'red' }} // Red background for Sync Now button
-                    />
-
-                  </View>
+                  <ScrollView contentContainerStyle={[styles.scrollContainer,  {paddingRight: 20 }]}>
+                    <View style={styles.buttonContainer}>
+                      <CustomButton
+                        title="Home"
+                        onPress={() => setSelectedScreen('Home')}
+                        theme={appTheme}
+                        iconText="🏠"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="Fill Details"
+                        onPress={() => setSelectedScreen('AllForm')}
+                        theme={appTheme}
+                        iconText="✏️"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="Edit Details"
+                        onPress={() => setSelectedScreen('AllEditForm')}
+                        theme={appTheme}
+                        iconText="✏️"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="Estimate Cost"
+                        onPress={() => setSelectedScreen('EstimationForm')}
+                        theme={appTheme}
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View TPA Records"
+                        onPress={() => setSelectedScreen('ViewTPARecords')}
+                        theme={appTheme}
+                        iconText="📄"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View Testing Records"
+                        onPress={() => setSelectedScreen('ViewTestingRecords')}
+                        theme={appTheme}
+                        iconText="🧪"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View Consulting Records"
+                        onPress={() => setSelectedScreen('ViewConsultingRecords')}
+                        theme={appTheme}
+                        iconText="💼"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View Consultants"
+                        onPress={() => setSelectedScreen('ViewConsultants')}
+                        theme={appTheme}
+                        iconText="👨‍💼"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View Testers"
+                        onPress={() => setSelectedScreen('ViewTesters')}
+                        theme={appTheme}
+                        iconText="👩‍🔬"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View Test Rates"
+                        onPress={() => setSelectedScreen('ViewTestRates')}
+                        theme={appTheme}
+                        iconText="💵"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="Export Excel"
+                        onPress={() => setSelectedScreen('GenerateExcel')}
+                        theme={appTheme}
+                        iconText="📊"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="View Estimation Records"
+                        onPress={() => setSelectedScreen('ViewEstimation')}
+                        theme={appTheme}
+                        iconText="📊"
+                        buttonStyle={{ backgroundColor: 'black' }}
+                      />
+                      <CustomButton
+                        title="Sync Now"
+                        onPress={handleSyncNow}
+                        theme={appTheme}
+                        iconText="🔄"
+                        buttonStyle={{ backgroundColor: 'red' }}
+                      />
+                    </View>
+                  </ScrollView>
                 </View>
               ) : null}
 
@@ -317,20 +321,28 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    // alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   icon: {
+    flexDirection: 'row',
     fontSize: 18,
     marginRight: 8,
+    justifyContent: 'flex-start',
   },
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    justifyContent: 'flex-start',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingRight: 20,
   },
   buttonContainer: {
     gap: 10,
     borderColor: '#919191',
+    paddingBottom: 20,
   },
   button: {
     paddingVertical: 12,
@@ -344,6 +356,9 @@ const styles = StyleSheet.create({
 
 
 
+
+
+//Daivik
 
 // import * as React from 'react';
 // import {View, Text, useColorScheme, StyleSheet, Alert} from 'react-native';

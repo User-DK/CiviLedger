@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { getPaginatedEstimationRecords } from '../../db/tables/Estimation';
+import {getPaginatedProcessEstimations} from '../../db/tables/ProcessEstimation'; // Import the function to fetch paginated estimations
 import CustomModal from './CustomModal';
 
 const ViewEstimation = () => {
@@ -23,11 +23,11 @@ const ViewEstimation = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const result = await getPaginatedEstimationRecords(page, pageSize);
+      const result = await getPaginatedProcessEstimations(page, pageSize); // Fetch paginated data
       if (result?.records) {
         setData(result.records);
-        const total = Math.ceil(result.totalPages / pageSize);
-        setTotalPages(total || 1);
+        setTotalPages(result.totalPages || 1);
+
       } else {
         setData([]);
       }
@@ -42,7 +42,7 @@ const ViewEstimation = () => {
     fetchData();
   }, [page]);
 
-  const openModal = (item) => {
+  const openModal = item => {
     setSelectedItem(item);
     setModalVisible(true);
   };
@@ -61,18 +61,23 @@ const ViewEstimation = () => {
       ) : (
         <FlatList
           data={data}
-          keyExtractor={(item) => item.id?.toString()}
-          renderItem={({ item }) => (
+          keyExtractor={item => item.id?.toString()}
+          renderItem={({item}) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => openModal(item)}
-            >
+              onPress={() => openModal(item)}>
               <Text style={styles.cardTitle}>ID: {item.id}</Text>
               <Text style={styles.cardSubtitle}>
                 Name of Party: {item.name_of_party}
               </Text>
               <Text style={styles.cardSubtitle}>
+                Service Type: {item.service_type}
+              </Text>
+              <Text style={styles.cardSubtitle}>
                 Total Amount: Rs. {item.total_amount}
+              </Text>
+              <Text style={styles.cardSubtitle}>
+                Last Updated: {item.lastUpdatedAt}
               </Text>
             </TouchableOpacity>
           )}
@@ -82,9 +87,8 @@ const ViewEstimation = () => {
       <View style={styles.pagination}>
         <TouchableOpacity
           disabled={page === 1}
-          onPress={() => setPage((prev) => prev - 1)}
-          style={[styles.pageButton, page === 1 && styles.disabledButton]}
-        >
+          onPress={() => setPage(prev => prev - 1)}
+          style={[styles.pageButton, page === 1 && styles.disabledButton]}>
           <Text style={styles.pageText}>Previous</Text>
         </TouchableOpacity>
         <Text style={styles.pageText}>
@@ -92,12 +96,11 @@ const ViewEstimation = () => {
         </Text>
         <TouchableOpacity
           disabled={page === totalPages}
-          onPress={() => setPage((prev) => prev + 1)}
+          onPress={() => setPage(prev => prev + 1)}
           style={[
             styles.pageButton,
             page === totalPages && styles.disabledButton,
-          ]}
-        >
+          ]}>
           <Text style={styles.pageText}>Next</Text>
         </TouchableOpacity>
       </View>

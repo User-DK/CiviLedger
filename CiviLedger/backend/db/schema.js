@@ -102,7 +102,29 @@ db.serialize(() => {
       FOREIGN KEY (testing) REFERENCES Testers (tester_code)
     );
   `);
+  db.run(`
+    CREATE TABLE IF NOT EXISTS Process_Estimation (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name_of_party TEXT,
+      service_type TEXT,
+      igst REAL,
+      cgst REAL,
+      sgst REAL,
+      total_amount REAL
 
+    );
+  `);
+  db.run(`
+    CREATE TABLE IF NOT EXISTS EstimationDetails (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      party_id INTEGER, -- Foreign key referencing Process_Estimation
+      material_type TEXT,
+      test_name TEXT,
+      no_of_tests INTEGER,
+      total_amount REAL,
+      FOREIGN KEY (party_id) REFERENCES Process_Estimation (id)
+    );
+  `);
 });
 
 module.exports = db;

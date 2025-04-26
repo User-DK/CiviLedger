@@ -123,3 +123,41 @@ exports.uploadChanges = async (req, res) => {
     res.status(500).json({ message: "Failed to sync data" });
   }
 };
+
+//yash added estimation
+
+// Sync Process_Estimation table
+exports.syncProcessEstimation = async (req, res) => {
+  try {
+    const rows = req.body.estimation || [];
+    for (const row of rows) {
+      if (row.isDeleted === 1) {
+        await db.run("DELETE FROM Process_Estimation WHERE id = ?", [row.id]);
+      } else {
+        await insertOrUpdate("Process_Estimation", row);
+      }
+    }
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Sync Error:", err);
+    res.status(500).send("Failed to sync Process_Estimation");
+  }
+};
+
+// Sync EstimationDetails table
+exports.syncEstimationDetails = async (req, res) => {
+  try {
+    const rows = req.body.estimationDetails || [];
+    for (const row of rows) {
+      if (row.isDeleted === 1) {
+        await db.run("DELETE FROM EstimationDetails WHERE id = ?", [row.id]);
+      } else {
+        await insertOrUpdate("EstimationDetails", row);
+      }
+    }
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Sync Error:", err);
+    res.status(500).send("Failed to sync EstimationDetails");
+  }
+};

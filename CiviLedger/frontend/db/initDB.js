@@ -197,7 +197,35 @@ export const createTables = async (db) => {
       FOREIGN KEY (testing) REFERENCES Testers (tester_code)
     );
   `;
+  const processEstimationTable = `
+    CREATE TABLE IF NOT EXISTS Process_Estimation (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name_of_party TEXT,
+      service_type TEXT,
+      igst REAL,
+      cgst REAL,
+      sgst REAL,
+      total_amount REAL,
+      isSynced INTEGER DEFAULT 0,
+      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      isDeleted INTEGER DEFAULT 0
+    );
+  `;
 
+  const estimationDetailsTable = `
+    CREATE TABLE IF NOT EXISTS EstimationDetails (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      party_id INTEGER, -- Foreign key referencing Process_Estimation
+      material_type TEXT,
+      test_name TEXT,
+      no_of_tests INTEGER,
+      total_amount REAL,
+      isSynced INTEGER DEFAULT 0,
+      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      isDeleted INTEGER DEFAULT 0,
+      FOREIGN KEY (party_id) REFERENCES Process_Estimation (id)
+    );
+  `;
   const createTestRatesTable = `
     CREATE TABLE IF NOT EXISTS test_rates (
       test_name TEXT,
@@ -212,6 +240,8 @@ export const createTables = async (db) => {
     await db.executeSql(processTestingTable);
     await db.executeSql(processConsultancyTable);
     await db.executeSql(createTestRatesTable);
+    await db.executeSql(estimationDetailsTable); // Added EstimationDetails table
+    await db.executeSql(processEstimationTable);
     await db.executeSql('DELETE FROM test_rates;');
     for (const [name, rate] of insertTestRates) {
       await db.executeSql(
