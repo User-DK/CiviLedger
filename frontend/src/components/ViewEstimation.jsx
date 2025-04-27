@@ -6,10 +6,13 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import { getPaginatedTesterRecords } from '../../db/tables/testers';
+import {getPaginatedProcessEstimations} from '../../db/tables/ProcessEstimation'; // Import the function to fetch paginated estimations
+import CustomModal from './CustomModal';
+import {getEstimationDetailsByPartyID} from '../../db/tables/EstimationDetails';
 
-const ViewTestersRecords = () => {
+const ViewEstimation = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -22,11 +25,10 @@ const ViewTestersRecords = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const result = await getPaginatedTesterRecords(page, pageSize);
+      const result = await getPaginatedProcessEstimations(page, pageSize); // Fetch paginated data
       if (result?.records) {
         setData(result.records);
-        const total = Math.ceil(result.totalPages / pageSize);
-        setTotalPages(total || 1);
+        setTotalPages(result.totalPages || 1);
       } else {
         setData([]);
       }
@@ -41,9 +43,27 @@ const ViewTestersRecords = () => {
     fetchData();
   }, [page]);
 
-  const openModal = item => {
-    setSelectedItem(item);
-    setModalVisible(true);
+  const openModal = async item => {
+    try {
+      const details = await getEstimationDetailsByPartyID(item.id);
+      if (details && details.length > 0) {
+        const formattedDetails = details.map(detail => ({
+          material_type: detail.material_type,
+          test_name: detail.test_name,
+          no_of_tests: detail.no_of_tests,
+          total_amount: detail.total_amount,
+        }));
+        Alert.alert(JSON.stringify(formattedDetails));
+        setSelectedItem({...item, details: formattedDetails});
+      } else {
+        setSelectedItem(item);
+      }
+    } catch (error) {
+      console.error('Error fetching estimation details:', error);
+      setSelectedItem(item);
+    } finally {
+      setModalVisible(true);
+    }
   };
 
   const closeModal = () => {
@@ -53,26 +73,30 @@ const ViewTestersRecords = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Testers Records</Text>
+      <Text style={styles.heading}>Estimation Records</Text>
 
       {loading ? (
         <ActivityIndicator size="large" />
       ) : (
         <FlatList
           data={data}
-          keyExtractor={item => item.tester_code?.toString()}
+          keyExtractor={item => item.id?.toString()}
           renderItem={({item}) => (
             <TouchableOpacity
               style={styles.card}
               onPress={() => openModal(item)}>
-              <Text style={styles.cardTitle}>
-                Tester Code: {item.tester_code}
+              <Text style={styles.cardTitle}>ID: {item.id}</Text>
+              <Text style={styles.cardSubtitle}>
+                Name of Party: {item.name_of_party}
               </Text>
               <Text style={styles.cardSubtitle}>
-                Name of the Tester: {item.tester_name}
+                Service Type: {item.service_type}
               </Text>
               <Text style={styles.cardSubtitle}>
-                Tester Phone: {item.tester_phone}
+                Total Amount: Rs. {item.total_amount}
+              </Text>
+              <Text style={styles.cardSubtitle}>
+                Last Updated: {item.lastUpdatedAt}
               </Text>
             </TouchableOpacity>
           )}
@@ -100,11 +124,17 @@ const ViewTestersRecords = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Custom Modal to show record details */}
+      <CustomModal
+        visible={modalVisible}
+        data={selectedItem}
+        onClose={closeModal}
+      />
     </View>
   );
 };
 
-export default ViewTestersRecords;
+export default ViewEstimation;
 
 const styles = StyleSheet.create({
   container: {

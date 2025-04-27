@@ -27,8 +27,6 @@ const ProcessTestingForm = ({isEditing}) => {
     details_of_work: '',
     amount: '',
     total_incl_gst: '',
-    cumulative_amount: '',
-    cumulative_amount_incl_gst: '',
     material_receipt: '',
     testing_status: '',
     report_status: '',
@@ -75,8 +73,6 @@ const ProcessTestingForm = ({isEditing}) => {
       details_of_work,
       amount,
       total_incl_gst,
-      cumulative_amount,
-      cumulative_amount_incl_gst,
       material_receipt,
       testing_status,
       report_status,
@@ -95,8 +91,6 @@ const ProcessTestingForm = ({isEditing}) => {
       !details_of_work ||
       !amount ||
       !total_incl_gst ||
-      !cumulative_amount ||
-      !cumulative_amount_incl_gst ||
       !material_receipt ||
       testing_status === '' ||
       report_status === '' ||
@@ -113,14 +107,7 @@ const ProcessTestingForm = ({isEditing}) => {
       return;
     }
 
-    if (
-      !isNumeric(
-        amount,
-        total_incl_gst,
-        cumulative_amount,
-        cumulative_amount_incl_gst,
-      )
-    ) {
+    if (!isNumeric(amount, total_incl_gst)) {
       Alert.alert('Amount fields must be numeric!');
       return;
     }
@@ -138,8 +125,6 @@ const ProcessTestingForm = ({isEditing}) => {
         details_of_work: '',
         amount: '',
         total_incl_gst: '',
-        cumulative_amount: '',
-        cumulative_amount_incl_gst: '',
         material_receipt: '',
         testing_status: '',
         report_status: '',
@@ -162,14 +147,14 @@ const ProcessTestingForm = ({isEditing}) => {
     try {
       const result = await getTestingRecordByID(id);
       if (result) {
+        Alert.alert('Fetched Record', JSON.stringify(result, null, 2));
+        console.log('Fetched record:', result);
         setFormData({
           id: result.id,
           name_of_party: result.name_of_party,
           details_of_work: result.details_of_work,
-          amount: result.amount,
-          total_incl_gst: result.total_incl_gst,
-          cumulative_amount: result.cumulative_amount,
-          cumulative_amount_incl_gst: result.cumulative_amount_incl_gst,
+          amount: String(result.amount),
+          total_incl_gst: String(result.total_incl_gst),
           material_receipt: result.material_receipt,
           testing_status: result.testing_status,
           report_status: result.report_status,
@@ -196,12 +181,7 @@ const ProcessTestingForm = ({isEditing}) => {
 
   const handleSubmitEditing = async () => {
     try {
-      if (
-        isNaN(formData.amount) ||
-        isNaN(formData.total_incl_gst) ||
-        isNaN(formData.cumulative_amount) ||
-        isNaN(formData.cumulative_amount_incl_gst)
-      ) {
+      if (isNaN(formData.amount) || isNaN(formData.total_incl_gst)) {
         Alert.alert('Please enter valid numbers!');
         return;
       }
@@ -265,25 +245,9 @@ const ProcessTestingForm = ({isEditing}) => {
           value={formData.total_incl_gst}
           onChangeText={value => handleChange('total_incl_gst', value)}
         />
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Cumulative Amount"
-          keyboardType="numeric"
-          value={formData.cumulative_amount}
-          onChangeText={value => handleChange('cumulative_amount', value)}
-        />
       </View>
 
       <View style={styles.row}>
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Cumulative Amount Incl GST"
-          keyboardType="numeric"
-          value={formData.cumulative_amount_incl_gst}
-          onChangeText={value =>
-            handleChange('cumulative_amount_incl_gst', value)
-          }
-        />
         <TextInput
           style={[styles.input, styles.column]}
           placeholder="Material Receipt"

@@ -6,53 +6,33 @@ import {
   Button,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import {useNavigation} from '@react-navigation/native';
-
-const testTypes = {
-  'LL PL Earth Work': 1000,
-  'Proctor Density': 1500,
-  'Sieve Analysis for Hard Murrm': 1000,
-  'Liquid lim. & Plastic lim.-Murum': 1000,
-  'Sieve Analysis for 40mm Below': 550,
-  'Group Test for 40mm Below': 2300,
-  'Flakiness Index for 40mm Below': 750,
-  'Sieve Analysis for 40mm Above': 550,
-  'Group Test for 40mm Above': 2700,
-  'Flakiness Index for 40mm Above': 750,
-  'Bitumen: Penetration, Softening Point, Sp. Gravity': 1650,
-  Ductility: 1000,
-  Penetration: 550,
-  'Softening Point': 550,
-  'Sieve Analysis Mix Material': 550,
-  'Group Test Mix Material': 2300,
-  'Flakiness Mix Material': 750,
-  'Extraction Mix Material': 1350,
-  'GSB Mix Design': 15000,
-  'BM Job Mix Design': 7500,
-  'BC Job Mix Design': 15500,
-  'Cement Testing': 3500,
-  'Crushed Sand (Sieve +Silt)': 1100,
-  'Bricks (Wet, Dry, Water Absorption)': 3000,
-  'Bricks (Wet, Dry, Water Absorption, Efflorescence)': 2250,
-  'Concrete Cube': 500,
-  'Steel testing': 1200,
-  'Concrete Mix Design': 12500,
-  '20 mm Aggregate (Sieve Analysis)': 550,
-  '10 mm Aggregate (Sieve Analysis)': 1850,
-  '10/20 mm Aggregate (Gr. Test)': 2300,
-};
+import {addEstimationDetail} from '../../db/tables/EstimationDetails';
+import {
+  addProcessEstimation,
+  updateTotalandGST,
+} from '../../db/tables/ProcessEstimation';
+import {
+  getAllMaterialTypes,
+  getMaterialTestsMap,
+} from '../../db/tables/MaterialsAndTestRates'; // Update the path if needed
+import {useEffect} from 'react';
 
 const EstimationForm = () => {
-  const navigation = useNavigation();
-
+  const [filteredTests, setFilteredTests] = useState([]);
+  const [partyId, setPartyId] = useState(null); // Store partyId after adding party details
+  const [materialTypes, setMaterialTypes] = useState([]); // Store material types
+  const [materialTestsMap, setMaterialTestsMap] = useState({}); // Store material tests map
+  //const [totalAmount, setTotalAmount] = useState(0); // Store total amount for the estimation
   const [formData, setFormData] = useState({
     name_of_party: '',
     service_type: '',
-    igst: '',
-    cgst: '',
-    items: [],
+    igst: '18',
+    cgst: '9',
+    sgst: '9',
+    items: [], // Store all items locally before submitting
   });
 
   const [currentItem, setCurrentItem] = useState({
@@ -62,40 +42,149 @@ const EstimationForm = () => {
     basic_amount: '',
   });
 
+  const fetchData = async () => {
+    try {
+      const materialTypes = await getAllMaterialTypes();
+      const materialTestsMap = await getMaterialTestsMap(); // Fetch the material tests map from the database
+
+      return {materialTypes, materialTestsMap};
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return {materialTypes: [], materialTestsMap: {}};
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const {materialTypes, materialTestsMap} = await fetchData(); // <== now it calls the correct one
+        setMaterialTypes(materialTypes);
+        setMaterialTestsMap(materialTestsMap);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
   const handleChange = (name, value) => {
     setFormData({...formData, [name]: value});
   };
 
   const handleItemChange = (name, value) => {
-    if (name === 'test_name' && testTypes[value]) {
+    if (name === 'material_type' && materialTestsMap) {
+      const tests = materialTestsMap[value] || {};
+      setFilteredTests(Object.keys(tests));
       setCurrentItem({
-        ...currentItem,
-        test_name: value,
-        basic_amount: testTypes[value].toString(),
+        material_type: value,
+        test_name: '',
+        basic_amount: '',
+        no_of_tests: '',
       });
+    } else if (name === 'test_name') {
+      const basicAmount =
+        materialTestsMap[currentItem.material_type]?.[value] ?? '';
+      setCurrentItem(prevItem => ({
+        ...prevItem,
+        test_name: value,
+        basic_amount: basicAmount,
+      }));
     } else {
-      setCurrentItem({...currentItem, [name]: value});
+      setCurrentItem(prev => ({...prev, [name]: value}));
+    }
+  };
+
+  const addPartyDetails = async () => {
+    if (!formData.name_of_party || !formData.service_type) {
+      Alert.alert(
+        'Error',
+        'Please fill in the Name of Party and Service Type.',
+      );
+      return;
+    }
+
+    try {
+      const result = await addProcessEstimation({
+        name_of_party: formData.name_of_party,
+        service_type: formData.service_type,
+        igst: formData.igst,
+        cgst: formData.cgst,
+        sgst: formData.sgst,
+        total_amount: 0, // Initialize total amount as 0
+        total_amount_inc_gst: 0, // Initialize total amount including GST as 0
+      });
+
+      if (result) {
+        setPartyId(result); // Store the partyId for future use
+        Alert.alert('Success', 'Party details added successfully!');
+      } else {
+        Alert.alert('Error', 'Failed to add party details.');
+      }
+    } catch (error) {
+      console.error('Error adding party details:', error);
+      Alert.alert('Error', 'An error occurred while adding party details.');
     }
   };
 
   const addItem = () => {
-    if (
-      currentItem.material_type &&
-      currentItem.test_name &&
-      currentItem.no_of_tests &&
-      currentItem.basic_amount
-    ) {
-      setFormData({
-        ...formData,
-        items: [...formData.items, {...currentItem}],
-      });
-      setCurrentItem({
-        material_type: '',
-        test_name: '',
-        no_of_tests: '',
-        basic_amount: '',
-      });
+    const {material_type, test_name, no_of_tests, basic_amount} = currentItem;
+
+    if (!material_type || !test_name || !no_of_tests || !basic_amount) {
+      Alert.alert('Error', 'Please fill all fields for the item!');
+      return;
     }
+
+    const totalAmount = parseFloat(basic_amount) * parseInt(no_of_tests);
+
+    const updatedItems = [
+      ...formData.items,
+      {
+        material_type,
+        test_name,
+        no_of_tests,
+        basic_amount,
+        total_amount: totalAmount,
+      },
+    ];
+
+    setFormData({
+      ...formData,
+      items: updatedItems,
+    });
+
+    // Reset the current item fields
+    setCurrentItem({
+      material_type: '',
+      test_name: '',
+      no_of_tests: '',
+      basic_amount: '',
+    });
+
+    Alert.alert('Item added successfully!');
+  };
+
+  const calculateTotalAmountIncGST = () => {
+    const totalBasicAmount = formData.items.reduce(
+      (sum, item) =>
+        sum + parseFloat(item.basic_amount) * parseInt(item.no_of_tests),
+      0,
+    );
+
+    let gstPercentage = 0;
+
+    if (parseFloat(formData.igst) > 0) {
+      gstPercentage = parseFloat(formData.igst);
+    } else {
+      gstPercentage =
+        parseFloat(formData.cgst || '0') + parseFloat(formData.sgst || '0');
+    }
+
+    const gstAmount = (totalBasicAmount * gstPercentage) / 100;
+
+    const finalAmount = totalBasicAmount + gstAmount;
+
+    return finalAmount;
   };
 
   const calculateTotalAmount = () => {
@@ -104,11 +193,54 @@ const EstimationForm = () => {
         sum + parseFloat(item.basic_amount) * parseInt(item.no_of_tests),
       0,
     );
-    const igstAmount =
-      (totalBasicAmount * parseFloat(formData.igst || '0')) / 100;
-    const cgstAmount =
-      (totalBasicAmount * parseFloat(formData.cgst || '0')) / 100;
-    return totalBasicAmount + igstAmount + cgstAmount;
+    return totalBasicAmount;
+  };
+
+  const handleSubmit = async () => {
+    if (!partyId) {
+      Alert.alert('Error', 'Please add party details first!');
+      return;
+    }
+
+    if (formData.items.length === 0) {
+      Alert.alert('Error', 'Please add at least one item!');
+      return;
+    }
+
+    try {
+      // Insert all items into the database
+      for (const item of formData.items) {
+        await addEstimationDetail({
+          party_id: partyId,
+          material_type: item.material_type,
+          test_name: item.test_name,
+          no_of_tests: item.no_of_tests,
+          total_amount: item.total_amount,
+        });
+      }
+
+      const totalAmount = calculateTotalAmount();
+      const totalAmountIncGST = calculateTotalAmountIncGST();
+
+      await updateTotalandGST(partyId, totalAmount, totalAmountIncGST);
+
+      Alert.alert('Success', 'Estimation details submitted successfully!');
+      setFormData({
+        name_of_party: '',
+        service_type: '',
+        igst: '18',
+        cgst: '9',
+        sgst: '9',
+        items: [],
+      });
+      setPartyId(null); // Reset partyId
+    } catch (error) {
+      console.error('Error submitting estimation details:', error);
+      Alert.alert(
+        'Error',
+        'An error occurred while submitting estimation details.',
+      );
+    }
   };
 
   return (
@@ -139,6 +271,7 @@ const EstimationForm = () => {
         value={formData.igst}
         onChangeText={value => handleChange('igst', value)}
       />
+
       <TextInput
         style={[styles.input, styles.uniformField]}
         placeholder="CGST (%)"
@@ -147,25 +280,36 @@ const EstimationForm = () => {
         onChangeText={value => handleChange('cgst', value)}
       />
 
+      <TextInput
+        style={[styles.input, styles.uniformField]}
+        placeholder="SGST (%)"
+        keyboardType="numeric"
+        value={formData.sgst}
+        onChangeText={value => handleChange('sgst', value)}
+      />
+
+      <Button title="Add Party Details" onPress={addPartyDetails} />
+
       <View style={styles.row}>
         <Picker
           selectedValue={currentItem.material_type}
           style={[styles.picker, styles.column, styles.uniformField]}
           onValueChange={value => handleItemChange('material_type', value)}>
           <Picker.Item label="Select Material Type" value="" />
-          <Picker.Item label="SOIL" value="SOIL" />
-          <Picker.Item label="Aggregate" value="Aggregate" />
-          <Picker.Item label="Building Materials" value="Building_Materials" />
-          <Picker.Item label="BT Mix Designs" value="BT_Mix_Designs" />
-          <Picker.Item label="Paving_Mixtures" value="Paving_Mixtures" />
-          <Picker.Item label="Bitumen" value="Bitumen" />
+          {materialTypes.map(({material_name}) => (
+            <Picker.Item
+              key={material_name}
+              label={material_name}
+              value={material_name}
+            />
+          ))}
         </Picker>
         <Picker
           selectedValue={currentItem.test_name}
           style={[styles.picker, styles.column, styles.uniformField]}
           onValueChange={value => handleItemChange('test_name', value)}>
           <Picker.Item label="Select Test Name" value="" />
-          {Object.keys(testTypes).map(test => (
+          {filteredTests.map(test => (
             <Picker.Item key={test} label={test} value={test} />
           ))}
         </Picker>
@@ -225,7 +369,6 @@ const EstimationForm = () => {
           </Text>
         </View>
       ))}
-
       <Text style={styles.totalAmount}>
         Final Amount: Rs.{' '}
         {isNaN(calculateTotalAmount())
@@ -233,10 +376,14 @@ const EstimationForm = () => {
           : calculateTotalAmount().toFixed(2)}
       </Text>
 
-      <Button
-        title="Submit"
-        onPress={() => console.log('Form Submitted', formData)}
-      />
+      <Text style={styles.totalAmount}>
+        Final Amount (Inc_gst): Rs.{' '}
+        {isNaN(calculateTotalAmountIncGST())
+          ? '0.00'
+          : calculateTotalAmountIncGST().toFixed(2)}
+      </Text>
+
+      <Button title="Submit" onPress={handleSubmit} />
     </ScrollView>
   );
 };

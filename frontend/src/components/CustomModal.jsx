@@ -10,6 +10,40 @@ import {
 const CustomModal = ({visible, onClose, data}) => {
   if (!visible) return null;
 
+  const renderValue = (key, value) => {
+    // If the key is "details" and the value is an object, render its sub-keys
+    if (key === 'details' && value && typeof value === 'object') {
+      // If it's an array, map through each detail object
+      if (Array.isArray(value)) {
+        return value.map((detail, index) => (
+          <View key={index} style={styles.nestedContainer}>
+            {Object.entries(detail).map(([subKey, subValue]) => (
+              <Text key={subKey} style={styles.nestedText}>
+                {subKey}: {String(subValue)}
+              </Text>
+            ))}
+          </View>
+        ));
+      }
+      // Otherwise, if it's an object, render its entries
+      return (
+        <View style={styles.nestedContainer}>
+          {Object.entries(value).map(([subKey, subValue]) => (
+            <Text key={subKey} style={styles.nestedText}>
+              {subKey}: {String(subValue)}
+            </Text>
+          ))}
+        </View>
+      );
+    }
+    // For any other key, just return the stringified value
+    return (
+      <Text style={styles.label}>
+        {key}: {String(value)}
+      </Text>
+    );
+  };
+
   return (
     <View style={styles.overlay}>
       <View style={styles.modalContainer}>
@@ -17,9 +51,7 @@ const CustomModal = ({visible, onClose, data}) => {
         <ScrollView style={styles.content}>
           {Object.entries(data || {}).map(([key, value]) => (
             <View key={key} style={styles.row}>
-              <Text style={styles.label}>
-                {key}:{" "}{String(value)}
-              </Text>
+              {renderValue(key, value)}
             </View>
           ))}
         </ScrollView>
@@ -52,7 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     elevation: 5,
-    borderColor: '#000'
+    borderColor: '#000',
   },
   title: {
     fontSize: 18,
@@ -86,5 +118,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  nestedContainer: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  nestedText: {
+    fontSize: 18,
+    color: '#555',
   },
 });

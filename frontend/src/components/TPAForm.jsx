@@ -24,8 +24,6 @@ const ProcessTPAForm = ({isEditing}) => {
     details_of_work: '',
     amount: '',
     total_incl_gst: '',
-    cumulative_amount: '',
-    cumulative_amount_incl_gst: '',
     visit_status: '',
     document_receipt: '',
     report_status: '',
@@ -68,8 +66,6 @@ const ProcessTPAForm = ({isEditing}) => {
       'details_of_work',
       'amount',
       'total_incl_gst',
-      'cumulative_amount',
-      'cumulative_amount_incl_gst',
       'visit_status',
       'document_receipt',
       'report_status',
@@ -92,9 +88,7 @@ const ProcessTPAForm = ({isEditing}) => {
 
     if (
       isNaN(formData.amount) ||
-      isNaN(formData.total_incl_gst) ||
-      isNaN(formData.cumulative_amount) ||
-      isNaN(formData.cumulative_amount_incl_gst)
+      isNaN(formData.total_incl_gst)
     ) {
       Alert.alert('Please enter valid numbers!');
       return;
@@ -119,10 +113,8 @@ const ProcessTPAForm = ({isEditing}) => {
           name_of_party: result.name_of_party,
           name_of_corporation: result.name_of_corporation,
           details_of_work: result.details_of_work,
-          amount: result.amount,
-          total_incl_gst: result.total_incl_gst,
-          cumulative_amount: result.cumulative_amount,
-          cumulative_amount_incl_gst: result.cumulative_amount_incl_gst,
+          amount: String(result.amount),
+          total_incl_gst: String(result.total_incl_gst),
           visit_status: result.visit_status,
           document_receipt: result.document_receipt,
           report_status: result.report_status,
@@ -151,9 +143,7 @@ const ProcessTPAForm = ({isEditing}) => {
     try {
       if (
         isNaN(formData.amount) ||
-        isNaN(formData.total_incl_gst) ||
-        isNaN(formData.cumulative_amount) ||
-        isNaN(formData.cumulative_amount_incl_gst)
+        isNaN(formData.total_incl_gst)
       ) {
         Alert.alert('Please enter valid numbers!');
         return;
@@ -224,25 +214,9 @@ const ProcessTPAForm = ({isEditing}) => {
           value={formData.total_incl_gst}
           onChangeText={value => handleChange('total_incl_gst', value)}
         />
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Cumulative Amount"
-          keyboardType="numeric"
-          value={formData.cumulative_amount}
-          onChangeText={value => handleChange('cumulative_amount', value)}
-        />
       </View>
 
       <View style={styles.row}>
-        <TextInput
-          style={[styles.input, styles.column]}
-          placeholder="Cumulative Amount Incl GST"
-          keyboardType="numeric"
-          value={formData.cumulative_amount_incl_gst}
-          onChangeText={value =>
-            handleChange('cumulative_amount_incl_gst', value)
-          }
-        />
         <TextInput
           style={[styles.input, styles.column]}
           placeholder="Payment Date (YYYY-MM-DD)"

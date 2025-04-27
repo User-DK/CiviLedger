@@ -1,12 +1,17 @@
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./database.db');
 
+const syncString = `isSynced INTEGER DEFAULT 0,
+      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      isDeleted INTEGER DEFAULT 0`;
+
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS Testers (
       tester_code TEXT PRIMARY KEY,
       tester_name TEXT NOT NULL,
-      phone_number TEXT
+      phone_number TEXT,
+      ${syncString}
     );
   `);
 
@@ -14,7 +19,9 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS Consultants (
       consultant_code TEXT PRIMARY KEY,
       consultant_name TEXT NOT NULL,
-      phone_number TEXT
+      phone_number TEXT,
+      password TEXT NOT NULL,
+      ${syncString}
     );
   `);
 
@@ -26,6 +33,8 @@ db.serialize(() => {
       details_of_work TEXT,
       amount REAL,
       total_incl_gst REAL,
+      cumulative_amount REAL,
+      cumulative_amount_incl_gst REAL,
       visit_status INTEGER,
       document_receipt TEXT,
       report_status INTEGER,
@@ -38,7 +47,8 @@ db.serialize(() => {
       remarks TEXT,
       entered_by TEXT,
       FOREIGN KEY (consultant_code) REFERENCES Consultants (consultant_code),
-      FOREIGN KEY (entered_by) REFERENCES Consultants (consultant_code)
+      FOREIGN KEY (entered_by) REFERENCES Consultants (consultant_code),
+      ${syncString}
     );
   `);
 
@@ -49,6 +59,8 @@ db.serialize(() => {
       details_of_work TEXT,
       amount REAL,
       total_incl_gst REAL,
+      cumulative_amount REAL,
+      cumulative_amount_incl_gst REAL,
       material_receipt TEXT,
       testing_status INTEGER,
       report_status INTEGER,
@@ -61,7 +73,8 @@ db.serialize(() => {
       remarks TEXT,
       entered_by TEXT,
       FOREIGN KEY (testers) REFERENCES Testers (tester_code),
-      FOREIGN KEY (entered_by) REFERENCES Consultants (consultant_code)
+      FOREIGN KEY (entered_by) REFERENCES Consultants (consultant_code),
+      ${syncString}
     );
   `);
 
@@ -73,6 +86,8 @@ db.serialize(() => {
       details_of_work TEXT,
       amount REAL,
       total_incl_gst REAL,
+      cumulative_amount REAL,
+      cumulative_amount_incl_gst REAL,
       material_receipt TEXT,
       testing_status INTEGER,
       report_status INTEGER,
@@ -92,31 +107,11 @@ db.serialize(() => {
       FOREIGN KEY (cube_preparation) REFERENCES Testers (tester_code),
       FOREIGN KEY (casting) REFERENCES Testers (tester_code),
       FOREIGN KEY (demoulding) REFERENCES Testers (tester_code),
-      FOREIGN KEY (testing) REFERENCES Testers (tester_code)
+      FOREIGN KEY (testing) REFERENCES Testers (tester_code),
+      ${syncString}
     );
   `);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS Process_Estimation (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name_of_party TEXT,
-      service_type TEXT,
-      igst REAL,
-      cgst REAL,
-      sgst REAL,
-      total_amount REAL
-    );
-  `);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS EstimationDetails (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      party_id INTEGER, -- Foreign key referencing Process_Estimation
-      material_type TEXT,
-      test_name TEXT,
-      no_of_tests INTEGER,
-      total_amount REAL,
-      FOREIGN KEY (party_id) REFERENCES Process_Estimation (id)
-    );
-  `);
+
 });
 
 module.exports = db;

@@ -36,7 +36,12 @@ const AllForm = ({isEditing}) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Select a Form</Text>
+      {isEditing && (
+        <Text style={styles.heading}>Select a Form to Edit Entry</Text>
+      )}
+      {!isEditing && (
+        <Text style={styles.heading}>Select a Form to Add Entry</Text>
+      )}
       <Picker
         selectedValue={selectedForm}
         style={styles.picker}

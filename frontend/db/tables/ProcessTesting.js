@@ -4,13 +4,11 @@ export const addTestingRecord = async (record) => {
   const db = await getDBConnection();
   await db.executeSql(
     `INSERT INTO Process_Testing (
-      name_of_party, details_of_work, amount, total_incl_gst, cumulative_amount,
-      cumulative_amount_incl_gst, material_receipt, testing_status, report_status,
+      name_of_party, details_of_work, amount, total_incl_gst, material_receipt, testing_status, report_status,
       payment_status, payment_date, jv_no, receipt_no, date, testers, remarks, entered_by, isSynced, lastUpdatedAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      record.name_of_party, record.details_of_work, record.amount, record.total_incl_gst,
-      record.cumulative_amount, record.cumulative_amount_incl_gst, record.material_receipt,
+      record.name_of_party, record.details_of_work, record.amount, record.total_incl_gst, record.material_receipt,
       record.testing_status, record.report_status, record.payment_status,
       record.payment_date, record.jv_no, record.receipt_no, record.date,
       record.testers, record.remarks, record.entered_by,0,new Date().toISOString()
@@ -65,8 +63,6 @@ export const updateTestingRecord = async (record, isDelete) => {
       details_of_work = ?,
       amount = ?,
       total_incl_gst = ?,
-      cumulative_amount = ?,
-      cumulative_amount_incl_gst = ?,
       material_receipt = ?,
       testing_status = ?,
       report_status = ?,
@@ -86,8 +82,6 @@ export const updateTestingRecord = async (record, isDelete) => {
       record.details_of_work,
       record.amount,
       record.total_incl_gst,
-      record.cumulative_amount,
-      record.cumulative_amount_incl_gst,
       record.material_receipt,
       record.testing_status,
       record.report_status,
