@@ -7,6 +7,7 @@ import TPAForm from './TPAForm';
 import TestersForm from './AddTestersForm';
 import ConsultantsForm from './AddConsultantsForm';
 import AddTestRateForm from './AddTestRatesForm';
+import IPForm from './ipform';
 
 const AllForm = ({isEditing}) => {
   const [selectedForm, setSelectedForm] = useState('');
@@ -25,6 +26,8 @@ const AllForm = ({isEditing}) => {
         return <ConsultantsForm isEditing={isEditing} />;
       case 'TestRates':
         return <AddTestRateForm isEditing={isEditing} />;
+      case 'IP':
+        return <IPForm />;
       default:
         return (
           <Text style={styles.placeholderText}>
@@ -53,6 +56,7 @@ const AllForm = ({isEditing}) => {
         <Picker.Item label="Testers" value="Testers" />
         <Picker.Item label="Consultants" value="Consultants" />
         <Picker.Item label="Test Rates" value="TestRates" />
+        <Picker.Item label="IP" value="IP" />
       </Picker>
 
       <View style={styles.formContainer}>{renderSelectedForm()}</View>

@@ -3,8 +3,9 @@ import { getDBConnection } from '../db';
 export const addTestRate = async (testRate) => {
   const db = await getDBConnection();
   await db.executeSql(
-    `INSERT INTO test_rates (test_name, rate) VALUES (?, ?)`,
-    [testRate.test_name, testRate.rate]
+    `INSERT INTO test_rates (test_name, rate, isSynced, lastUpdatedAt,) VALUES (?, ?, ?,?)`,
+    [testRate.test_name, testRate.rate, 0,
+    new Date().toISOString(),]
   );
 };
 
@@ -26,7 +27,7 @@ export const getTestRateByName = async (testName) => {
 export const updateTestRate = async (testRate) => {
   const db = await getDBConnection();
   await db.executeSql(
-    `UPDATE test_rates SET rate = ? WHERE test_name = ?`,
+    `UPDATE test_rates SET rate = ? WHERE test_name = ?  WHERE isDeleted = 0`,
     [testRate.rate, testRate.test_name]
   );
 };

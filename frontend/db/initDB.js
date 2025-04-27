@@ -275,7 +275,6 @@ const materialTestsMap = {
     'Group Test for 40mm Below': 2300,
     'Flakiness Index for 40mm Below': 750,
     'Group Test for 40mm Above': 2700,
-    'Sieve Analysis for 40mm Below': 550,
     'Flakiness Index for 40mm Above': 750,
     'Bulk Density': 550,
     'Moisture Content': 550,
@@ -452,7 +451,10 @@ export const createTables = async (db) => {
 
   const createMaterialTypesTable = `
     CREATE TABLE IF NOT EXISTS material_types(
-      material_name TEXT PRIMARY KEY
+      material_name TEXT PRIMARY KEY,
+      isSynced INTEGER DEFAULT 0,
+      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      isDeleted INTEGER DEFAULT 0
     );
   `;
 
@@ -461,6 +463,9 @@ export const createTables = async (db) => {
       material_type TEXT,
       test_name TEXT,
       rate INTEGER,
+      isSynced INTEGER DEFAULT 0,
+      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      isDeleted INTEGER DEFAULT 0,
       PRIMARY KEY (material_type, test_name),
       FOREIGN KEY (material_type) REFERENCES material_types (material_name)
     );
@@ -499,6 +504,13 @@ export const createTables = async (db) => {
     );
   `;
 
+  const iptable = `
+    CREATE TABLE IF NOT EXISTS ip (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ip TEXT DEFAULT 'localhost:5000'
+    );
+  `;
+
   try {
     await db.executeSql(testersTable);
     await db.executeSql(consultantsTable);
@@ -509,6 +521,12 @@ export const createTables = async (db) => {
     await db.executeSql(createTestRatesTable);
     await db.executeSql(processEstimationTable);
     await db.executeSql(estimationDetailsTable);
+    await db.executeSql(iptable);
+
+    const result = await db.executeSql(`SELECT * FROM ip`);
+    if (result[0].rows.length === 0) {
+      await db.executeSql(`INSERT INTO ip (ip) VALUES (?)`, ['localhost:5000']);
+    }
 
     for (const materialType of Object.keys(materialTestsMap)) {
       await db.executeSql(
