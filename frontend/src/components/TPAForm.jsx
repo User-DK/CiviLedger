@@ -32,7 +32,7 @@ const ProcessTPAForm = ({isEditing}) => {
     jv_no: '',
     receipt_no: '',
     consultant_code: '',
-    date: '',
+    date: new Date().toISOString().split('T')[0],
     remarks: '',
     entered_by: '',
   };
@@ -53,7 +53,28 @@ const ProcessTPAForm = ({isEditing}) => {
   }, []);
 
   const handleChange = (name, value) => {
-    setFormData({...formData, [name]: value});
+    if (name === 'amount') {
+      const amountValue = parseFloat(value);
+      if (!isNaN(amountValue)) {
+        const totalInclGst = (amountValue * 1.18).toFixed(2); // 18% GST added
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          amount: value,
+          total_incl_gst: totalInclGst,
+        }));
+      } else {
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          amount: value,
+          total_incl_gst: '',
+        }));
+      }
+    } else {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
   };
   const handleChangeID = value => {
     setCurrentID(value);
@@ -86,10 +107,7 @@ const ProcessTPAForm = ({isEditing}) => {
       }
     }
 
-    if (
-      isNaN(formData.amount) ||
-      isNaN(formData.total_incl_gst)
-    ) {
+    if (isNaN(formData.amount) || isNaN(formData.total_incl_gst)) {
       Alert.alert('Please enter valid numbers!');
       return;
     }
@@ -141,10 +159,7 @@ const ProcessTPAForm = ({isEditing}) => {
 
   const handleSubmitEditing = async () => {
     try {
-      if (
-        isNaN(formData.amount) ||
-        isNaN(formData.total_incl_gst)
-      ) {
+      if (isNaN(formData.amount) || isNaN(formData.total_incl_gst)) {
         Alert.alert('Please enter valid numbers!');
         return;
       }
@@ -213,6 +228,23 @@ const ProcessTPAForm = ({isEditing}) => {
           keyboardType="numeric"
           value={formData.total_incl_gst}
           onChangeText={value => handleChange('total_incl_gst', value)}
+        />
+      </View>
+
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.column]}
+          placeholder="JV No"
+          keyboardType="numeric"
+          value={formData.jv_no}
+          onChangeText={value => handleChange('jv_no', value)}
+        />
+        <TextInput
+          style={[styles.input, styles.column]}
+          placeholder="Receipt No"
+          keyboardType="numeric"
+          value={formData.receipt_no}
+          onChangeText={value => handleChange('receipt_no', value)}
         />
       </View>
 

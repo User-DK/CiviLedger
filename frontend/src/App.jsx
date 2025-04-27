@@ -89,7 +89,7 @@ export default function App() {
       }
       console.log('Filtered Changes:', changes);
       const ipData = await getip();
-      const ip = ipData ? ipData.ip : "localhost:5000"; // Get the IP address from the database
+      const ip = ipData ? ipData.ip : 'localhost:5000'; // Get the IP address from the database
       const response = await fetch(`http://${ip}/sync/upload`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -100,7 +100,7 @@ export default function App() {
       if (response.ok) {
         Alert.alert('Success', 'Your Changes are Permanently Saved');
       } else {
-        Alert.alert('Error', result.message || 'Failed to sync data');
+        Alert.alert('Error: Failed to sync data', JSON.stringify(result));
       }
     } catch (error) {
       console.error('Sync Error:', error);

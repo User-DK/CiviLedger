@@ -6,7 +6,7 @@ import ConsultingForm from './ConsultingForm';
 import TPAForm from './TPAForm';
 import TestersForm from './AddTestersForm';
 import ConsultantsForm from './AddConsultantsForm';
-import AddTestRateForm from './AddTestRatesForm';
+// import AddTestRateForm from './AddTestRatesForm';
 import IPForm from './ipform';
 
 const AllForm = ({isEditing}) => {
@@ -24,8 +24,8 @@ const AllForm = ({isEditing}) => {
         return <TestersForm isEditing={isEditing} />;
       case 'Consultants':
         return <ConsultantsForm isEditing={isEditing} />;
-      case 'TestRates':
-        return <AddTestRateForm isEditing={isEditing} />;
+      // case 'TestRates':
+      //   return <AddTestRateForm isEditing={isEditing} />;
       case 'IP':
         return <IPForm />;
       default:
@@ -55,7 +55,7 @@ const AllForm = ({isEditing}) => {
         <Picker.Item label="TPA" value="TPA" />
         <Picker.Item label="Testers" value="Testers" />
         <Picker.Item label="Consultants" value="Consultants" />
-        <Picker.Item label="Test Rates" value="TestRates" />
+        {/* <Picker.Item label="Test Rates" value="TestRates" /> */}
         <Picker.Item label="IP" value="IP" />
       </Picker>
 

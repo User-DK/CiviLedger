@@ -53,7 +53,6 @@ const ViewEstimation = () => {
           no_of_tests: detail.no_of_tests,
           total_amount: detail.total_amount,
         }));
-        Alert.alert(JSON.stringify(formattedDetails));
         setSelectedItem({...item, details: formattedDetails});
       } else {
         setSelectedItem(item);

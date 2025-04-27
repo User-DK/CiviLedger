@@ -34,7 +34,7 @@ const ProcessTestingForm = ({isEditing}) => {
     payment_date: '',
     jv_no: '',
     receipt_no: '',
-    date: '',
+    date: new Date().toISOString().split('T')[0],
     testers: '',
     remarks: '',
     entered_by: '',
@@ -57,7 +57,28 @@ const ProcessTestingForm = ({isEditing}) => {
   }, []);
 
   const handleChange = (name, value) => {
-    setFormData({...formData, [name]: value});
+    if (name === 'amount') {
+      const amountValue = parseFloat(value);
+      if (!isNaN(amountValue)) {
+        const totalInclGst = (amountValue * 1.18).toFixed(2); // 18% GST added
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          amount: value,
+          total_incl_gst: totalInclGst,
+        }));
+      } else {
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          amount: value,
+          total_incl_gst: '',
+        }));
+      }
+    } else {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleChangeID = value => {
@@ -147,7 +168,6 @@ const ProcessTestingForm = ({isEditing}) => {
     try {
       const result = await getTestingRecordByID(id);
       if (result) {
-        Alert.alert('Fetched Record', JSON.stringify(result, null, 2));
         console.log('Fetched record:', result);
         setFormData({
           id: result.id,

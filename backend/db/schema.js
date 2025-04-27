@@ -81,7 +81,8 @@ db.serialize(async () => {
     CREATE TABLE IF NOT EXISTS Consultants (
       consultant_code TEXT PRIMARY KEY,
       consultant_name TEXT NOT NULL,
-      phone_number TEXT
+      phone_number TEXT,
+      password TEXT
     );
   `);
 
@@ -164,16 +165,18 @@ db.serialize(async () => {
   `);
   db.run(`
     CREATE TABLE IF NOT EXISTS material_types(
-      material_name TEXT PRIMARY KEY
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    material_name TEXT
     );
   `);
   db.run(`
     CREATE TABLE IF NOT EXISTS test_rates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       material_type TEXT,
       test_name TEXT,
       rate INTEGER,
-      PRIMARY KEY (material_type, test_name),
-      FOREIGN KEY (material_type) REFERENCES material_types (material_name)
+      FOREIGN KEY (material_type) REFERENCES material_types (material_name),
+      UNIQUE(material_type, test_name)
     );
   `);
   db.run(`
@@ -185,10 +188,7 @@ db.serialize(async () => {
       cgst REAL,
       sgst REAL,
       total_amount REAL,
-      total_amount_inc_gst REAL,
-      isSynced INTEGER DEFAULT 0,
-      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
-      isDeleted INTEGER DEFAULT 0
+      total_amount_inc_gst REAL
     );
   `);
   db.run(`
@@ -199,9 +199,6 @@ db.serialize(async () => {
       test_name TEXT,
       no_of_tests INTEGER,
       total_amount REAL,
-      isSynced INTEGER DEFAULT 0,
-      lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
-      isDeleted INTEGER DEFAULT 0,
       FOREIGN KEY (party_id) REFERENCES Process_Estimation (id),
       FOREIGN KEY (material_type) REFERENCES material_types (material_name),
       FOREIGN KEY (material_type, test_name) REFERENCES test_rates (material_type, test_name)

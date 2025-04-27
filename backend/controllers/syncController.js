@@ -32,33 +32,6 @@ const insertOrUpdate = (table, row) => {
     });
   });
 };
-// const insertOrUpdate = (table, row) => {
-//   const keys = Object.keys(row);
-//   const placeholders = keys.map(() => "?").join(", ");
-//   const updates = keys.map((k) => `${k} = ?`).join(", ");
-
-//   const sql = `
-//     INSERT INTO ${table} (${keys.join(", ")})
-//     VALUES (${placeholders})
-//     ON CONFLICT(id) DO UPDATE SET ${updates}
-//   `;
-
-//   const values = [...keys.map(k => row[k]), ...keys.map(k => row[k])];
-
-//   console.log("Executing SQL:", sql); // Debugging
-//   console.log("With values:", values); // Debugging
-
-//   return new Promise((resolve, reject) => {
-//     db.run(sql, values, function (err) {
-//       if (err) {
-//         console.error("SQL Error:", err); // Debugging
-//         reject(err);
-//       } else {
-//         resolve();
-//       }
-//     });
-//   });
-// };
 
 exports.deleteTPA = async (req, res) => {
   try {
